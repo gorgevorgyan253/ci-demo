@@ -36,13 +36,9 @@ jobs:
         echo "${{ secrets.EC2_KEY }}"  | base64 -d > key.pem
         chmod 600 key.pem
         cat key.pem
-    - name: Debug SSH
-      run: |
-        ssh -vvv -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST }} echo "✅ Connected!"
-
     - name: Deploy on EC2 via SSH
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/hello-nginx:latest
           docker stop web || true
           docker rm web || true
