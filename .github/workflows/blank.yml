@@ -33,7 +33,7 @@ jobs:
     steps:
     - name: Set up SSH key
       run: |
-        echo "${{ secrets.EC2_KEY }}" > key.pem
+        echo "${{ secrets.EC2_KEY }}"  | base64 -d > key.pem
         chmod 600 key.pem
         cat key.pem
     - name: Debug SSH
