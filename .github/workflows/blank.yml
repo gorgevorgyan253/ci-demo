@@ -42,7 +42,7 @@ jobs:
 
     - name: Deploy on EC2 via SSH
       run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/hello-nginx:latest
           docker stop web || true
           docker rm web || true
