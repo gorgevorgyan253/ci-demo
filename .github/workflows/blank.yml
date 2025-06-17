@@ -36,6 +36,9 @@ jobs:
         echo "${{ secrets.EC2_KEY }}" > key.pem
         chmod 600 key.pem
         cat key.pem
+    - name: Debug SSH
+      run: |
+        ssh -vvv -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.EC2_HOST }} echo "✅ Connected!"
 
     - name: Deploy on EC2 via SSH
       run: |
