@@ -4,7 +4,7 @@ pipeline {
   environment {
     DOCKERHUB_USER = credentials('dockerhub-creds').username
     DOCKERHUB_PASS = credentials('dockerhub-creds').password
-    EC2_HOST = 'your.ec2.public.ip'
+    EC2_HOST = '13.220.60.90'
   }
 
   stages {
@@ -33,7 +33,7 @@ pipeline {
       steps {
         sshagent(credentials: ['ec2-ssh-key']) {
           sh """
-          ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
             docker pull ${DOCKERHUB_USER}/hello-nginx:latest
             docker stop web || true
             docker rm web || true
