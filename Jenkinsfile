@@ -3,7 +3,7 @@ pipeline {
   
 
   environment {
-    EC2_HOST = 'your.ec2.public.ip'
+    EC2_HOST = '13.220.60.90'
     EC2_USER = 'ec2-user'
   }
 
