@@ -1,10 +1,10 @@
 pipeline {
-    agent any
-  
+  agent any
 
   environment {
     EC2_HOST = '13.220.60.90'
     EC2_USER = 'ec2-user'
+    DOCKER_IMAGE = "${DOCKERHUB_USER}/hello-nginx:latest"
   }
 
   stages {
@@ -14,19 +14,18 @@ pipeline {
       }
     }
 
-stage('Deploy to EC2') {
-  steps {
-    sshagent(['ec2-ssh-key']) {
-      sh """
-        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} bash -c \\
-        'docker pull \$DOCKERHUB_USER/hello-nginx:latest && \\
-         docker stop web || true && \\
-         docker rm web || true && \\
-         docker run -d --name web -p 80:80 \$DOCKERHUB_USER/hello-nginx:latest'
-      """
+    stage('Deploy to EC2') {
+      steps {
+        sshagent(['ec2-ssh-key']) {
+          sh """
+            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \\
+            'docker pull ${DOCKER_IMAGE} && \\
+             docker stop web || true && \\
+             docker rm web || true && \\
+             docker run -d --name web -p 80:80 ${DOCKER_IMAGE}'
+          """
+        }
+      }
     }
-  }
-}
-
   }
 }
