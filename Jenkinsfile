@@ -2,9 +2,8 @@ pipeline {
   agent any
 
   environment {
-    DOCKERHUB_USER = credentials('dockerhub-creds').username
-    DOCKERHUB_PASS = credentials('dockerhub-creds').password
-    EC2_HOST = '13.220.60.90'
+    EC2_HOST = 'your.ec2.public.ip'
+    EC2_USER = 'ec2-user'
   }
 
   stages {
@@ -16,16 +15,20 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        script {
-          sh "echo ${DOCKERHUB_PASS} | docker login -u ${DOCKERHUB_USER} --password-stdin"
-          sh "docker build -t ${DOCKERHUB_USER}/hello-nginx:latest ."
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+          sh """
+            echo \$DOCKERHUB_PASS | docker login -u \$DOCKERHUB_USER --password-stdin
+            docker build -t \$DOCKERHUB_USER/hello-nginx:latest .
+          """
         }
       }
     }
 
     stage('Push Docker Image') {
       steps {
-        sh "docker push ${DOCKERHUB_USER}/hello-nginx:latest"
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+          sh "docker push \$DOCKERHUB_USER/hello-nginx:latest"
+        }
       }
     }
 
@@ -33,12 +36,12 @@ pipeline {
       steps {
         sshagent(credentials: ['ec2-ssh-key']) {
           sh """
-          ssh -o StrictHostKeyChecking=no ec2-user@${EC2_HOST} << 'EOF'
-            docker pull ${DOCKERHUB_USER}/hello-nginx:latest
-            docker stop web || true
-            docker rm web || true
-            docker run -d --name web -p 80:80 ${DOCKERHUB_USER}/hello-nginx:latest
-          EOF
+            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+              docker pull \$DOCKERHUB_USER/hello-nginx:latest
+              docker stop web || true
+              docker rm web || true
+              docker run -d --name web -p 80:80 \$DOCKERHUB_USER/hello-nginx:latest
+            EOF
           """
         }
       }
