@@ -1,6 +1,6 @@
 pipeline {
     agent any
-  }
+  
 
   environment {
     EC2_HOST = 'your.ec2.public.ip'
