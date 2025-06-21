@@ -34,7 +34,7 @@ pipeline {
 
     stage('Deploy to EC2') {
       steps {
-        sshagent(credentials: ['ec2-ssh-key']) {
+        sshagent(['ec2-ssh-key']) {
           sh """
             ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
               docker pull \$DOCKERHUB_USER/hello-nginx:latest
